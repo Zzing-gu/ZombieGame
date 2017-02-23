@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TankGame</title>
+</head>
+<body>
+
+<canvas id="myCanvas" width="500px" height="500px" style="border: 1px solid red"></canvas>
+
+<script>
+	var canvas = document.querySelector("#myCanvas");
+	var context = canvas.getContext("2d");
+
+	var playerup = new Image();
+	playerup.src = "images/tankup.jpg";
+	var playerleft = new Image();
+	playerleft.src = "images/tankleft.jpg";
+	var playerright = new Image();
+	playerright.src = "images/tankright.jpg";
+	var playerdown = new Image();
+	playerdown.src = "images/tankdown.jpg";
+
+
+	var playerList = [playerup, playerleft, playerright, playerdown];
+	var playerDirection = 0 ;
+
+	var ground = new Image();
+	ground.src = "images/ground.jpg";
+
+
+	var missle = new Image();
+	missle.src = "images/mi3.png"
+
+	var missleList = [];
+
+	//movement
+	var tankX =200;
+	var tankY =200;
+
+
+	//attack point
+	var mouseX = 0;
+	var mouseY = 0;
+
+
+	// 클로저에 담기
+	// 변수에 담지 않으면 난 새로운 함수와 환경을 계속 담아놓는 거구나!
+	function countCap (a){
+		var count = 999;
+		function getCount(){
+
+			return count;
+		}
+		function increaseCount(){
+			count++;
+		}
+
+		return arguments[0]?  getCount : increaseCount ;
+	}
+
+	var count=0;
+
+	//////////////////////////////////////////////////////////////////////////////////
+
+
+	var move = function(){
+
+	}
+
+
+
+	document.querySelectorAll("body")[0]
+		.addEventListener("keydown", function(e){
+			var code = e.keyCode;
+			console.log(code);
+			if(code==37){
+				console.log("left Arrow");
+				tankX--;
+				playerDirection =1;
+			}
+			 if(code==38){
+				console.log("up Arrow");
+				tankY--;
+				playerDirection =0;
+			}
+			 if(code==39){
+				console.log("right Arrow");
+				tankX++;
+				playerDirection =2;
+			}
+			 if(code==40){
+				console.log("down Arrow");
+				tankY++;
+				playerDirection =3;
+			}
+		});
+
+
+	document.querySelectorAll("body")[0]
+		.addEventListener("mousemove", function(e){
+			console.log(e.offsetX+"||||"+e.offsetY);
+			mouseX = e.offsetX;
+			mouseY = e.offsetY;
+		});
+
+	function Missile(attackDirectionX, attackDirectionY, originX, originY, distantX, distantY, x, y, pita) {
+		this.attackDirectionX = attackDirectionX;
+		this.attackDirectionY = attackDirectionY;
+		this.originX = originX;
+		this.originY = originY;
+		this.distantX = distantX;
+		this.distantY = distantY;
+		this.x = x;
+		this.y= y;
+		this.pita = pita;
+	}
+
+	var createMissle = function(){
+		//미사일 횟수 조절
+		if(count%10 != 0 ){
+			return;
+		}
+		var attackDirectionX = mouseX;
+		var attackDirectionY = mouseY;
+
+		var originX = tankX;
+		var originY = tankY;
+
+		var x = tankX;
+		var y = tankY;
+
+		var distantX = mouseX - tankX;
+		var distantY = mouseY - tankY;
+
+		var pita = Math.sqrt(Math.pow(distantX,2) + Math.pow(distantY, 2));
+
+		var missleObj = new Missile(attackDirectionX, attackDirectionY, originX, originY ,distantX, distantY ,x , y, pita);
+		missleList.push(missleObj);
+
+	};
+
+	// 미사일을 만드는 함수
+	var moveMissle = function(){
+		for (var i = 0; i < missleList.length; i++) {
+			missleList[i].x += missleList[i].distantX/missleList[i].pita  * 10;
+			missleList[i].y += missleList[i].distantY/missleList[i].pita   *10;
+		}
+	};
+
+
+
+
+
+	var drawScreen = function(){
+		context.drawImage(ground, 0,0,500,500);
+		context.drawImage(playerList[playerDirection] , tankX,tankY,30,30);
+
+		for (var i = 0; i < missleList.length; i++) {
+			missleList[i]
+			context.drawImage(missle,missleList[i].x,missleList[i].y,10,10);
+		}
+
+		createMissle();
+		moveMissle();
+		count++;
+		(countCap(false))();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	setInterval(drawScreen,10);
+
+
+</script>
+
+</body>
+</html>
